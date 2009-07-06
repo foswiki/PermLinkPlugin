@@ -10,11 +10,11 @@ Anywhere in a topic or template:
 | =format=""= | Controls the format of the permanent link. See formatting variables below. | $url$md5 |
 
 | *Formatting parameter* | *Description* | *Default* |
-| =$url= | Base URL without the ID. This parameter can be set in [[%SCRIPTURL{configure}%][configure]]. | %SCRIPTURL{rest}%/%TOPIC%/view/ |
+| =$url= | Base URL without the ID. This parameter can be set in [[%SCRIPTURL{configure}%][configure]]. | %SCRIPTURL{rest}%/PermLinkPlugin/view/ |
 | =$md5= | permanent ID in MD5 format (hex) | _none_ |
 | =$human= | permanent ID in human readable format | _none_ |
 | =$rev= | Current Revision number (delimitted with two hyphens) | _none_ |
 
-Plus the default escape sequence like =$n= or =$percnt=.
+Plus the default escape sequences like =$n= or =$percnt=.
 
 %ENDSECTION{"permlink_attributes"}%

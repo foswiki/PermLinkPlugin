@@ -2,4 +2,5 @@
 data/System/PermLinkPlugin.txt 0644 Documentation
 data/System/VarPERMLINK.txt 0644 Documentation
 lib/Foswiki/Plugins/PermLinkPlugin.pm 0644 Perl module
+lib/Foswiki/Plugins/PermLinkPlugin/Config.spec 0644 Confic Spec
 
