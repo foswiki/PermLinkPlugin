@@ -1,0 +1,5 @@
+# Release manifest for PermLinkPlugin
+data/System/PermLinkPlugin.txt 0644 Documentation
+data/System/VarPERMLINK.txt 0644 Documentation
+lib/Foswiki/Plugins/PermLinkPlugin.pm 0644 Perl module
+

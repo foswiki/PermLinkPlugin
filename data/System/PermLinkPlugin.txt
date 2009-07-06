@@ -1,0 +1,64 @@
+---+!! !PermLinkPlugin
+<!--
+One line description, required for extensions repository catalog.
+   * Set SHORTDESCRIPTION = Manages permanent links to topics.
+-->
+%SHORTDESCRIPTION%
+
+%TOC%
+
+---++ Usage
+%INCLUDE{"VarPERMLINK" section="permlink_attributes"}%
+
+---++ Example
+
+| *Example* | *Rendered Version (fake)* |
+| =%<nop>PERMLINK{ format="[<nop>[$url$md5$rev][Permlink]]" }%= | =[<nop>[http://some.host/foswiki/bin/rest/PermLinkPlugin/view/66ed41d6787c2833f78644336e5b9b7f--23][Permlink]]= |
+
+---++ Documentation
+
+---+++ Terminology
+The %WEB%.%TOPIC% knows two types of identifiers (IDs) to permanently point to a single topic:
+   * *md5:* 32 chars long, a hexadecimal number calculated with a standard MD5 hash algorithm based on the original topic name and a timestamp
+   * *human:* a human readable version based on the original web and topic name and optionally extended with a timestamp (in seconds)
+
+---+++ ID deployment
+On a fresh install (or on a system prior to the installation of this plugin) none of the topics carry an ID. Once the plugin is
+activated newly created topics as well as topics which go through an edit-save-cycle automatically get an ID. If you execute
+=%<nop>PERMLINK%= on a topic with no ID, you get a warning message. In that case just go through a normal edit-save-cycle.
+
+If you are an administrator you can mass deploy IDs on a web basis. Copy the following URL into your browser and add alter the web
+parameter =Foo= to the webname you want to deploy IDs in.
+<pre>
+%SCRIPTURL{rest}%/%TOPIC%/deploy?web=Foo
+</pre>
+%X% *CAUTION: This will alter all topic in that web. Be aware, that the "last modified" timestamp and author will be touched!*
+
+---+++ Revision specific permanent links
+Permanent links can point to a specific revision of a topic or to the last revision (whatever that is). Revision specific links
+end in two hyphens (--) and a number (corresponding to the resivion number). If this suffix is omitted, the link will always
+lead to the latest revision. You can add this suffix by adding a =$rev= directly behind the =$md5= or =$human= in the
+=%<nop>PERMLINK%= format option.
+
+
+---++ (Skin) Installation Instructions
+This plugin is SKIN agnostic. It does not know anything about your SKIN. If you want to integrate this feature into your SKIN,
+you have to manually edit the template files or customisation topics of your SKIN. Just put a =%<nop>PERMLINK{}%= where you
+think it fits most.
+
+---++ Developer notes
+The IDs are stored in local PREFerences called =PERM_ID_MD5= and =PERM_ID_HUMAN=.
+
+---++ Info
+
+|  Author(s): | Foswiki:Main.OliverKrueger |
+|  Copyright: | &copy; 2009, Foswiki:Main.OliverKrueger, [[http://wiki-one.net][(wiki-one.net)]] |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  06 Jul 2009 | Initial version |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Home page: | http://foswiki.org/bin/view/Extensions/PermLinkPlugin |
+|  Support: | http://foswiki.org/bin/view/Support/PermLinkPlugin |
+
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. -->
