@@ -35,6 +35,7 @@ the text had been included from another topic.
 
 package Foswiki::Plugins::PermLinkPlugin;
 use strict;
+use warnings;
 
 require Foswiki::Func;       # The plugins API
 require Foswiki::Plugins;    # For the API version
@@ -55,7 +56,7 @@ sub initPlugin {
 }
 
 sub get_topic_for_human {
-    my $id = $_[0];
+    (my $id) = @_;
 
     # sanatize $id
     $id =~ s/[^A-Za-z0-9_.]//g;
@@ -64,7 +65,7 @@ sub get_topic_for_human {
 }
 
 sub get_topic_for_md5 {
-    my $id = $_[0];
+    (my $id) = @_;
 
     # sanatize $id
     $id =~ s/[^A-Fa-f0-9]//g;
@@ -74,11 +75,10 @@ sub get_topic_for_md5 {
 
 # a noobs implementation
 sub get_topic_for_id {
-    my $method = $_[0];
-    my $id     = $_[1];
+    (my $method, my $id) = @_;
 
 
-    my $webs = join(",", Foswiki::Func::getListOfWebs());
+    my $webs = join(q{,}, Foswiki::Func::getListOfWebs());
     my $tml = "%SEARCH{ ";
     $tml   .= "search=\"preferences[name='" . $method . "' AND value='" . $id . "']\" ";
     $tml   .= 'type="query" ';
@@ -91,50 +91,57 @@ sub get_topic_for_id {
 
     my $topic = Foswiki::Func::expandCommonVariables( $tml );
 
-    return $topic if Foswiki::Func::topicExists( "", $topic );
-    return "";
+    return $topic if Foswiki::Func::topicExists( q{}, $topic );
+    return q{};
 }
 
 sub handle_PERMLINK {
     my($session, $params, $topic, $web) = @_;
 
-    my ( $human, $md5 ) = ("", "");
+    my ( $human, $md5 ) = (q{}, q{});
     my ( $meta, $text );
 
     my ( $theWeb, $theTopic ) = Foswiki::Func::normalizeWebTopicName( $web, $params->{topic} || $topic );
     my $theFormat = $params->{format} || '$url$md5';
     my $theURL    = $Foswiki::cfg{Plugins}{PermLinkPlugin}{shortURL} || "%SCRIPTURL{rest}%/PermLinkPlugin/view/";
     my $theWarn   = $params->{warn}   || '1';
+    my $revno;
     if ( $theWarn =~ m/off/ ) { $theWarn = 0; }
 
 
     # checking some pre-conditions
     if ( not Foswiki::Func::topicExists( $theWeb, $theTopic ) ) {
         if ($theWarn) { return '%MAKETEXT{"Error: topic does not exist"}%' }
-        else { return "" }
+        else { return q{} }
     }
     if ( not Foswiki::Func::checkAccessPermission("VIEW", Foswiki::Func::getCanonicalUserID(), undef, $theTopic, $theWeb ) ) {
         if ($theWarn) { return '%MAKETEXT{"Error: access denied"}%' }
-        else { return "" }
+        else { return q{} }
     }
 
     # getting the IDs
     ( $meta, $text ) = Foswiki::Func::readTopic( $theWeb, $theTopic );
     my @prefs = $meta->find( 'PREFERENCE' );
     foreach my $pref ( @prefs ) {
-        if ( $pref->{name} =~ m/^PERM_ID_HUMAN$/ ) { $human = $pref->{value}; };
-        if ( $pref->{name} =~ m/^PERM_ID_MD5$/ )   { $md5   = $pref->{value}; };
+        if ( $pref->{name} eq 'PERM_ID_HUMAN' ) { $human = $pref->{value}; };
+        if ( $pref->{name} eq 'PERM_ID_MD5' )   { $md5   = $pref->{value}; };
     }
-    if ( not $human || not $md5 ) {
+    if ( not ($human and $md5) ) {
         if ($theWarn) { return '%MAKETEXT{"Error: no IDs found, please edit/save this topic"}%' }
-        else { return "" }
+        else { return q{} }
+    }
+
+    if ($Foswiki::Plugins::VERSION < 2.1) {
+        $revno = $session->{store}->getRevisionNumber($theWeb, $theTopic);
+    } else {
+        $revno = $meta->getMaxRevNo();
     }
 
     # formatting the output
     $theFormat =~ s/\$md5/$md5/ge;
     $theFormat =~ s/\$human/$human/ge;
     $theFormat =~ s/\$url/$theURL/ge;
-    $theFormat =~ s/\$rev/"--".$meta->getMaxRevNo()/ge;
+    $theFormat =~ s/\$rev/"--".$revno/ge;
     $theFormat = expandStandardEscapes( $theFormat );
 
     return $theFormat;
@@ -197,10 +204,22 @@ sub write_id {
     return 1;
 }
 
+sub myGetRequestObject {
+    my $object;
+
+    if ($Foswiki::Plugins::VERSION < 2.1) {
+        $object = Foswiki::Func::getCgiQuery();
+    } else {
+        $object = Foswiki::Func::getRequestObject();
+    }
+
+    return $object;
+}
+
 sub rest_view {
     my ($session) = @_;
 
-    my $uri = Foswiki::Func::getRequestObject->uri();
+    my $uri = myGetRequestObject()->uri();
 
     # get revision number from uri
     my $rev = 0;
@@ -210,13 +229,13 @@ sub rest_view {
     };
 
     # get ID from uri
-    my $id = "";
+    my $id = q{};
     if ( $uri =~ m/\/([^\/]+)$/ ) {
       $id = $1;
     };
 
     # resolve ID
-    my ( $web, $topic ) = "";
+    my ( $web, $topic ) = ( q{}, q{} );
     if ( $id =~ m/^[A-Fa-f0-9]{32}$/ ) {
         $topic = get_topic_for_md5($id);
     } else {
@@ -226,7 +245,7 @@ sub rest_view {
         $session->{response}->status( "404 Topic not found" );
         return "<h1>404 Topic not found</h1>";
     }
-    ( $web, $topic ) = Foswiki::Func::normalizeWebTopicName("", $topic);
+    ( $web, $topic ) = Foswiki::Func::normalizeWebTopicName(q{}, $topic);
 
     my $redirect_url = Foswiki::Func::getScriptUrl( $web, $topic, "view" );
     if ($rev) { $redirect_url .= "?rev=$rev"; }
@@ -238,7 +257,7 @@ sub rest_view {
 sub rest_deploy {
     my ($session) = @_;
     my $retval = "Deploying IDs... <br />";
-    my $isSetWeb = Foswiki::Func::getRequestObject->param("web") || 0;
+    my $isSetWeb = myGetRequestObject()->param("web") || 0;
 
     if ( not Foswiki::Func::isAnAdmin() ) {
         $session->{response}->status( "403 Forbidden: You need to be an admin to do that." );
@@ -253,11 +272,12 @@ sub rest_deploy {
     # sanatizing web parameter
     $isSetWeb =~ s/[^A-Za-z0-9-_.\/]//g;
     $isSetWeb =~ m/^(.*)$/;
-    $isSetWeb = $1;
 
-    if ( not Foswiki::Func::webExists( $isSetWeb ) ) {
+    if ( (not $1) or (not Foswiki::Func::webExists( $isSetWeb )) ) {
         $session->{response}->status( "404 Web not found" );
         return "<h1>404 Web not found</h1>";
+    } else {
+      $isSetWeb = $1;
     }
 
     $session->{response}->status( "200 Ok" );
@@ -280,16 +300,16 @@ sub beforeSaveHandler {
     # return on existing ID -> nothing more to do
     my @prefs = $meta->find( 'PREFERENCE' );
     foreach my $pref ( @prefs ) {
-        return "" if ( $pref->{name} =~ m/PERM_ID_/ );
+        return q{} if ( $pref->{name} =~ m/PERM_ID_/ );
     }
 
     my $human = get_id_human( $web, $topic );
     my $md5   = get_id_md5( $web, $topic );
 
-    $_[3]->putKeyed( 'PREFERENCE', { name => "PERM_ID_HUMAN", title => "PERM_ID_HUMAN", value => $human, type=>"Local" } );
-    $_[3]->putKeyed( 'PREFERENCE', { name => "PERM_ID_MD5",   title => "PERM_ID_MD5",   value => $md5,   type=>"Local" } );
+    $meta->putKeyed( 'PREFERENCE', { name => "PERM_ID_HUMAN", title => "PERM_ID_HUMAN", value => $human, type=>"Local" } );
+    $meta->putKeyed( 'PREFERENCE', { name => "PERM_ID_MD5",   title => "PERM_ID_MD5",   value => $md5,   type=>"Local" } );
 
-    return "";
+    return q{};
 }
 
 

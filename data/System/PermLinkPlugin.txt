@@ -56,9 +56,10 @@ The IDs are stored in local PREFerences called =PERM_ID_MD5= and =PERM_ID_HUMAN=
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  25 Jan 2010 | Foswikitask:8346 - Add compatibility for Foswiki 1.0.x releases |
 |  06 Jul 2009 | Initial version |
 |  Dependencies: | %$DEPENDENCIES% |
-|  Home page: | http://foswiki.org/bin/view/Extensions/PermLinkPlugin |
-|  Support: | http://foswiki.org/bin/view/Support/PermLinkPlugin |
+|  Home page: | Foswiki:Extensions.PermLinkPlugin |
+|  Support: | Foswiki:Support.PermLinkPlugin |
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. -->
