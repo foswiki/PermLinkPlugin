@@ -40,7 +40,7 @@ require Foswiki::Func;       # The plugins API
 require Foswiki::Plugins;    # For the API version
 
 our $VERSION           = '$Rev: 3193 $';
-our $RELEASE           = '0.9.0';
+our $RELEASE           = '1.0.0';
 our $SHORTDESCRIPTION  = 'Manages permanent links to topics.';
 our $NO_PREFS_IN_TOPIC = 1;
 
@@ -49,8 +49,8 @@ sub initPlugin {
     # my ($topic, $web) = @_;
 
     Foswiki::Func::registerTagHandler( 'PERMLINK', \&handle_PERMLINK );
-    Foswiki::Func::registerRESTHandler( 'view',   \&rest_view );
-    Foswiki::Func::registerRESTHandler( 'deploy', \&rest_deploy );
+    Foswiki::Func::registerRESTHandler( 'view',   \&rest_view, authenticate => 0 );
+    Foswiki::Func::registerRESTHandler( 'deploy', \&rest_deploy, authenticate => 1 );
 
     return 1;
 }

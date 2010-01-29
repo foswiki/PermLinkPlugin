@@ -1,7 +1,7 @@
 ---+!! !PermLinkPlugin
 <!--
 One line description, required for extensions repository catalog.
-   * Set SHORTDESCRIPTION = Manages permanent links to topics.
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
 -->
 %SHORTDESCRIPTION%
 
@@ -46,6 +46,14 @@ This plugin is SKIN agnostic. It does not know anything about your SKIN. If you 
 you have to manually edit the template files or customisation topics of your SKIN. Just put a =%<nop>PERMLINK{}%= where you
 think it fits most.
 
+---++ Authentication Requirements
+%WEB%.%TOPIC% uses the Foswiki API to specify that the =deploy= action requires an authenticated user, whereas the =view= action 
+(used when following a permanent link) should not.
+
+In order for %WEB%.%TOPIC% to resolve permanent links for guest users, the =rest= script should be removed from ={AuthScripts}= in [[%SCRIPTURLPATH{"configure"}%][configure]].
+   * Foswiki 1.0.x: Turn on expert settings ("Yes, I have read all the documentation"). ={AuthScripts}= is under "Security Setup: Authentication"
+   * Foswiki 1.1.x: ={AuthScripts}= is under "User Logins" -&gt; "Login"
+
 ---++ Developer notes
 The IDs are stored in local PREFerences called =PERM_ID_MD5= and =PERM_ID_HUMAN=.
 
@@ -55,8 +63,9 @@ The IDs are stored in local PREFerences called =PERM_ID_MD5= and =PERM_ID_HUMAN=
 |  Copyright: | &copy; 2009, Foswiki:Main.OliverKrueger, [[http://wiki-one.net][(wiki-one.net)]] |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Version: | %$VERSION% |
+|  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  25 Jan 2010 | Foswikitask:8346 - Add compatibility for Foswiki 1.0.x releases |
+|  29 Jan 2010 | Foswikitask:Item8346 - Add compatibility for Foswiki 1.0.x releases<br/> Foswikitask:Item8347 - Fix view action requires authentication |
 |  06 Jul 2009 | Initial version |
 |  Dependencies: | %$DEPENDENCIES% |
 |  Home page: | Foswiki:Extensions.PermLinkPlugin |
