@@ -145,7 +145,7 @@ sub handle_PERMLINK {
         $revno = $session->{store}->getRevisionNumber( $theWeb, $theTopic );
     }
     else {
-        $revno = $meta->getMaxRevNo();
+        $revno = $meta->getLatestRev();
     }
 
     # formatting the output
