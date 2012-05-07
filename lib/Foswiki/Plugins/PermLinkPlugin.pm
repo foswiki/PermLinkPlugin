@@ -49,10 +49,8 @@ sub initPlugin {
     # my ($topic, $web) = @_;
 
     Foswiki::Func::registerTagHandler( 'PERMLINK', \&handle_PERMLINK );
-    Foswiki::Func::registerRESTHandler( 'view', \&rest_view,
-        authenticate => 0 );
-    Foswiki::Func::registerRESTHandler( 'deploy', \&rest_deploy,
-        authenticate => 1 );
+    Foswiki::Func::registerRESTHandler( 'view',   \&rest_view, authenticate => 0 );
+    Foswiki::Func::registerRESTHandler( 'deploy', \&rest_deploy, authenticate => 1 );
 
     return 1;
 }
